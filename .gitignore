@@ -1,1 +1,4 @@
 echo "/poem.txt" >> .gitignore
+
+echo "audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" >> .gitignore
+echo "audio/encounter.mp3" >> .gitignore
