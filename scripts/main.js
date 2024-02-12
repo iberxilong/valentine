@@ -5,11 +5,12 @@
   const FRAME_RATE = 60
   const PARTICLE_NUM = 2000
   const RADIUS = Math.PI * 2
-  const CANVASWIDTH = 500
-  const CANVASHEIGHT = 150
+  const CANVASWIDTH = 1200
+  const CANVASHEIGHT = 300
   const CANVASID = 'canvas'
-
-  let texts = ['MY DEAR', 'LOOK UP AT THE', 'STARRY SKY', 'ARE YOU', 'LOOKING AT THE', 'SAME STAR', 'WITH ME ?', 'HAPPY', 'CHINESE', 'VALENTINE\'S', 'DAY', 'I MISS YOU']
+  // 该js文件主要功能是在网页上通过粒子系统动画生成和更新一系列预定义的文本。
+  // 这些文本被显示在一个<canvas>元素上，并且每次点击或触摸屏幕时，文本会更新到数组texts中的下一个文本。
+  let texts = ['&EnCounter','Dear 懒狗睡睡睡', 'Milktea 学妹','Lovely XX','since 2023/11/26','Our growing bond ,', 'tender and new,','blossoms like a garden','in the sun\'s warm embrace;','like a new star,','hints at a luminous future', 'with shared laughter', 'under the moon.', 'HAPPY',  'VALENTINE\'S', 'DAY','YOURS ZanYu With love',"SHOW_ALL_TEXTS"]
 
   let canvas,
     ctx,
@@ -17,7 +18,7 @@
     quiver = true,
     text = texts[0],
     textIndex = 0,
-    textSize = 70
+    textSize = 80
 
   function draw () {
     ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT)
@@ -26,6 +27,8 @@
     ctx.fontWeight = 'bold'
     ctx.font = textSize + 'px \'SimHei\', \'Avenir\', \'Helvetica Neue\', \'Arial\', \'sans-serif\''
     ctx.fillText(text, (CANVASWIDTH - ctx.measureText(text).width) * 0.5, CANVASHEIGHT * 0.5)
+
+    //wrapText(text, CANVASWIDTH / 2, CANVASHEIGHT / 2, CANVASWIDTH, textSize);
 
     let imgData = ctx.getImageData(0, 0, CANVASWIDTH, CANVASHEIGHT)
 
@@ -40,6 +43,28 @@
     window.requestAnimationFrame(draw)
   }
 
+  function wrapText(text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let lineCount = 0;
+
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+
+        if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, x - (ctx.measureText(line).width / 2), y);
+            line = words[n] + ' ';
+            y += lineHeight;
+            lineCount++;
+            if (lineCount >= 2) break; // 限制最多两行
+        } else {
+            line = testLine;
+        }
+      }
+      ctx.fillText(line, x - (ctx.measureText(line).width / 2), y); // 绘制最后一行或仅有的一行
+  }
   function particleText (imgData) {
     // 点坐标获取
     var pxls = []
@@ -115,28 +140,70 @@
     canvas.style.marginTop = window.innerHeight * .15 + 'px'
   }
 
-  function event () {
-    document.addEventListener('click', function (e) {
-      textIndex++
-      if (textIndex >= texts.length) {
-        textIndex--
-        return
-      }
-      text = texts[textIndex]
-      console.log(textIndex)
-    }, false)
+  function showAllTexts() {
+    // 创建一个新的 div 元素来显示所有文本，除了特殊元素
+    const textsDiv = document.createElement('div');
+    textsDiv.setAttribute('id', 'allTexts');
+    textsDiv.style.color = 'rgb(226,225,142)'; // 示例颜色，根据需要调整
+    textsDiv.style.whiteSpace = 'pre-wrap'; // 保持文本格式
+    textsDiv.style.padding = '20px'; // 添加一些内边距
+    textsDiv.style.textAlign = 'center'; // 文本居中
+    textsDiv.style.cursor = 'text'; // 显示文本光标
+    textsDiv.style.position = 'absolute'; // 绝对定位
+    textsDiv.style.left = '50%'; // 左边距设置为50%宽度
+    textsDiv.style.top = '50%'; // 顶边距设置为50%高度
+    textsDiv.style.transform = 'translate(-50%, -50%)'; // 使用 transform 属性来确保元素完全居中
+    textsDiv.style.maxWidth = '90%'; // 最大宽度，确保有足够的边距
+    textsDiv.style.overflow = 'auto'; // 如果文本太多，允许滚动
 
-    document.addEventListener('touchstart', function (e) {
-      textIndex++
-      if (textIndex >= texts.length) {
-        textIndex--
-        return
+    // 过滤掉特殊元素并将剩余文本拼接成一个字符串
+    const allTexts = texts.filter(t => t !== "SHOW_ALL_TEXTS").join('\n\n');
+    textsDiv.textContent = allTexts;
+
+    // 将新的 div 添加到页面上
+    document.body.appendChild(textsDiv);
+}
+
+
+  function event () {
+    const eventHandler = function (e) {
+      textIndex++;
+      if (textIndex < texts.length) {
+          text = texts[textIndex];
+          console.log(textIndex);
+          
+          // 检查是否到达特殊元素
+          if (text === "SHOW_ALL_TEXTS") {
+              showAllTexts(); // 展示所有文本
+              canvas.style.display = 'none'; // 隐藏 canvas
+          }
       }
-      text = texts[textIndex]
-      console.log(textIndex)
-    }, false)
+  };
+  
+    // document.addEventListener('click', function (e) {
+    //   textIndex++
+    //   if (textIndex >= texts.length) {
+    //     textIndex--
+    //     return
+    //   }
+    //   text = texts[textIndex]
+    //   console.log(textIndex)
+    // }, false)
+    document.addEventListener('click', eventHandler, false)
+
+    // document.addEventListener('touchstart', function (e) {
+    //   textIndex++
+    //   if (textIndex >= texts.length) {
+    //     textIndex--
+    //     return
+    //   }
+    //   text = texts[textIndex]
+    //   console.log(textIndex)
+    // }, false)
+    document.addEventListener('touchstart', eventHandler, false)
   }
 
+  
   function init () {
     canvas = document.getElementById(CANVASID)
     if (canvas === null || !canvas.getContext) {

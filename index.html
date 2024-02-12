@@ -12,14 +12,43 @@
     
   </head>
   <body>
+    <script>
+      // 确保整个文档加载完成后再绑定事件监听器
+      document.addEventListener('DOMContentLoaded', (event) => {
+          function playMusic() {
+              var audioElement = document.getElementById('myAudio');
+              var playPromise = audioElement.play();
+
+              if (playPromise !== undefined) {
+                  playPromise.then(_ => {
+                      // 自动播放开始
+                  }).catch(error => {
+                      // 自动播放失败的情况处理
+                      document.getElementById('playButton').style.display = 'block';
+                  });
+              }
+
+              // 移除事件监听器，确保音乐只在第一次点击时尝试播放
+              document.removeEventListener('click', playMusic);
+          }
+
+          // 绑定全局点击事件监听器到document
+          document.addEventListener('click', playMusic);
+      });
+  </script>
     <div class="container">
       <div class="content">
         <canvas id="universe"></canvas>
         <canvas id="canvas"></canvas>
-        <iframe src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" allow="autoplay" style="display:none" id="iframeAudio"></iframe>
+        <!-- <iframe src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" allow="autoplay" style="display:none" id="iframeAudio"></iframe>
         <audio autoplay loop>
         	<source src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" type="audio/mpeg">
-        </audio>
+        </audio> -->
+         <!-- 用户点击按钮后开始播放音乐 -->
+      <button onclick="document.getElementById('myAudio').play()">Play Music</button>
+      <audio id="myAudio" loop>
+        <source src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" type="audio/mpeg">
+      </audio>
         <div id="footer" class="">
           <svg id="scene" x="0%" y="0%" width="300%" height="100%">
               <path id="ground" d="M0,316.4209c0,0,157.7119-35.416,469-56c7.3833-0.4883,23.7876-3.5488,31.3335-4.0166
@@ -135,5 +164,6 @@
     <script src="scripts/universe.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
+    
   </body>
 </html>
